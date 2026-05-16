@@ -1,0 +1,1693 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>食品安全舆情对抗传播教学模拟</title>
+  <style>
+    :root {
+      --bg: #f3f6f8;
+      --panel: #ffffff;
+      --ink: #17202a;
+      --muted: #5d6b78;
+      --line: #d9e1e8;
+      --brand: #156c8c;
+      --brand-dark: #0d4d66;
+      --danger: #d94b3d;
+      --warn: #e5a32d;
+      --good: #27936b;
+      --calm: #64748b;
+      --purple: #6b5dd3;
+      --shadow: 0 12px 30px rgba(27, 39, 51, .09);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: center;
+      padding: 18px 24px 14px;
+      background: #0f2430;
+      color: #fff;
+      border-bottom: 4px solid #7cc4a5;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 25px;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #cfe0e7;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .clock {
+      min-width: 220px;
+      text-align: right;
+      color: #d9f2e8;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(350px, 1.1fr) minmax(390px, 1.25fr) minmax(320px, .9fr);
+      gap: 14px;
+      padding: 14px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .layout > .panel,
+    .right-column,
+    .right-column > .panel {
+      height: 100%;
+    }
+
+    .layout > .panel:nth-child(1),
+    .layout > .panel:nth-child(2) {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .layout > .panel:nth-child(1) .canvas-wrap,
+    .layout > .panel:nth-child(2) .canvas-wrap {
+      flex: 1;
+      min-height: 0;
+    }
+
+    .layout > .panel:nth-child(1) canvas,
+    .layout > .panel:nth-child(2) canvas {
+      height: 100%;
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfd;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: #e6f3f4;
+      color: var(--brand-dark);
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .case-card {
+      margin: 14px;
+      padding: 15px 16px;
+      border: 1px solid #cfdde4;
+      border-left: 5px solid var(--brand);
+      border-radius: 8px;
+      background: #f8fbfc;
+      line-height: 1.65;
+      font-size: 15px;
+    }
+
+    .case-card strong { color: var(--brand-dark); }
+
+    .canvas-wrap {
+      position: relative;
+      padding: 0 14px 14px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #f9fbfc;
+    }
+
+    #networkCanvas { min-height: 430px; }
+    #chartCanvas { min-height: 290px; }
+
+    .legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 14px;
+      padding: 0 14px 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      min-height: 22px;
+    }
+
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      flex: 0 0 auto;
+    }
+
+    .phase-bar {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 11px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    button {
+      border: 1px solid #b8c9d2;
+      background: #fff;
+      color: var(--ink);
+      border-radius: 7px;
+      min-height: 40px;
+      padding: 7px 10px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+
+    button:hover {
+      border-color: var(--brand);
+      color: var(--brand-dark);
+      background: #eff8f8;
+    }
+
+    button.active {
+      background: var(--brand);
+      border-color: var(--brand);
+      color: #fff;
+    }
+
+    button.reset {
+      border-color: #d7a9a2;
+      color: #a3372d;
+      background: #fff7f6;
+    }
+
+    .timeline {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      min-height: 96px;
+    }
+
+    .timeline h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .timeline p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.58;
+    }
+
+    .chart-legend {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+      padding: 0 14px 14px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .chart-legend span {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 34px;
+      padding: 7px 9px;
+      border: 1px solid #d8e2e8;
+      border-radius: 8px;
+      background: #fcfdfd;
+    }
+
+    .chart-legend b {
+      color: #0d4d66;
+      font-size: 16px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .control {
+      display: grid;
+      grid-template-columns: 1fr 44px;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 11px;
+    }
+
+    .control:last-child { margin-bottom: 0; }
+
+    .control label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #2f3b45;
+    }
+
+    .control output {
+      text-align: right;
+      color: var(--brand-dark);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      grid-column: 1 / -1;
+      width: 100%;
+      accent-color: var(--brand);
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric {
+      border: 1px solid #d8e2e8;
+      border-radius: 8px;
+      padding: 9px;
+      background: #fcfdfd;
+      min-height: 68px;
+    }
+
+    .metric b {
+      display: block;
+      font-size: 21px;
+      margin-bottom: 3px;
+      color: var(--brand-dark);
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    details {
+      margin: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      overflow: hidden;
+    }
+
+    summary {
+      padding: 12px 13px;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--brand-dark);
+      background: #eef7f6;
+    }
+
+    .theory-list {
+      padding: 4px 13px 13px;
+      max-height: 310px;
+      overflow: auto;
+    }
+
+    .theory-item {
+      padding: 11px 0;
+      border-bottom: 1px solid #e4ebef;
+    }
+
+    .theory-item:last-child { border-bottom: 0; }
+
+    .theory-item h4 {
+      margin: 0 0 7px;
+      font-size: 14px;
+      color: #20303a;
+    }
+
+    .theory-item p {
+      margin: 5px 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.48;
+    }
+
+    .notice {
+      padding: 10px 14px 12px;
+      color: #53616d;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .theory-section {
+      grid-column: 1 / -1;
+      height: auto;
+    }
+
+    .theory-toggle {
+      margin: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .theory-toggle > summary {
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 13px 15px;
+      border-bottom: 0;
+      background: #fbfcfd;
+      cursor: pointer;
+      font-weight: 800;
+      color: var(--ink);
+    }
+
+    .theory-toggle > summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .theory-toggle[open] > summary {
+      border-bottom: 1px solid var(--line);
+    }
+
+    .summary-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-size: 17px;
+      color: var(--brand);
+    }
+
+    .summary-title::before {
+      content: "▶";
+      color: var(--brand);
+      font-size: 12px;
+      transition: transform .18s ease;
+    }
+
+    .theory-toggle[open] .summary-title::before {
+      transform: rotate(90deg);
+    }
+
+    .theory-section .theory-list {
+      max-height: none;
+      overflow: visible;
+    }
+
+    .theory-grid {
+      display: grid;
+      grid-template-columns: minmax(340px, 1fr) minmax(380px, 1.08fr);
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .theory-card {
+      border: 1px solid #d8e2e8;
+      border-radius: 8px;
+      background: #fcfdfd;
+      padding: 13px;
+    }
+
+    .theory-card h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+      color: #142633;
+    }
+
+    .algorithm-summary {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .formula-grid {
+      display: grid;
+      gap: 9px;
+    }
+
+    .formula-item {
+      padding: 10px;
+      border-left: 4px solid #7cc4a5;
+      border-radius: 7px;
+      background: #f7fbfb;
+    }
+
+    .formula-item code {
+      display: block;
+      margin-bottom: 5px;
+      color: #0d4d66;
+      font-family: Consolas, "Microsoft YaHei", monospace;
+      font-size: 13px;
+      font-weight: 800;
+      white-space: pre-wrap;
+    }
+
+    .formula-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .model-lab {
+      grid-column: 1 / -1;
+      height: auto;
+    }
+
+    .model-intro {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.62;
+      background: #fbfcfd;
+    }
+
+    .model-intro strong {
+      color: var(--brand-dark);
+    }
+
+    .model-title-blue {
+      color: var(--brand);
+    }
+
+    .model-tabs {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .model-tabs button {
+      min-height: 44px;
+      line-height: 1.25;
+    }
+
+    .model-tabs button.active {
+      background: var(--brand);
+      color: #fff;
+      border-color: var(--brand);
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: minmax(280px, .95fr) minmax(320px, 1fr) minmax(360px, 1.2fr);
+      gap: 14px;
+      padding: 14px;
+      align-items: stretch;
+    }
+
+    .model-card {
+      border: 1px solid #d8e2e8;
+      border-radius: 8px;
+      background: #fcfdfd;
+      padding: 13px;
+      min-height: 100%;
+    }
+
+    .model-card h3 {
+      margin: 0 0 9px;
+      font-size: 17px;
+      color: #142633;
+    }
+
+    .model-card p {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .model-explain {
+      display: grid;
+      gap: 8px;
+    }
+
+    .model-explain p {
+      margin: 0;
+      padding: 8px 9px;
+      border-left: 4px solid #b8d9da;
+      border-radius: 6px;
+      background: #f7fbfb;
+    }
+
+    .model-explain strong {
+      color: var(--brand-dark);
+    }
+
+    .formula-box {
+      margin-top: 11px;
+      padding: 10px;
+      border-radius: 7px;
+      background: #102936;
+      color: #e8f6f6;
+      font-family: Consolas, "Microsoft YaHei", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .model-controls {
+      display: grid;
+      gap: 13px;
+    }
+
+    .model-results {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .model-result {
+      border: 1px solid #d8e2e8;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      min-height: 72px;
+    }
+
+    .model-result b {
+      display: block;
+      color: var(--brand-dark);
+      font-size: 22px;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .model-result span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    #modelCanvas {
+      height: 250px;
+    }
+
+    .model-note {
+      margin: 10px 14px 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #fff8e9;
+      color: #6c5524;
+      font-size: 12px;
+      line-height: 1.55;
+      border: 1px solid #ead7a6;
+    }
+
+    footer {
+      padding: 10px 18px;
+      color: #5b6670;
+      font-size: 12px;
+      border-top: 1px solid var(--line);
+      background: #fff;
+    }
+
+    @media (max-width: 1180px) {
+      .layout { grid-template-columns: 1fr 1fr; }
+      .right-column { grid-column: 1 / -1; height: auto; }
+      .right-column .panel { display: grid; grid-template-columns: 1fr 1fr; }
+      .right-column .panel-head { grid-column: 1 / -1; }
+      #networkCanvas { height: 430px; min-height: 430px; }
+      #chartCanvas { height: 290px; min-height: 290px; }
+      .theory-grid { grid-template-columns: 1fr; }
+      button { min-height: 40px; font-size: 15px; }
+      .timeline { min-height: 96px; padding: 13px 15px; }
+      .timeline h3 { font-size: 17px; }
+      .timeline p { font-size: 14px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .metric { min-height: 74px; }
+      .metric b { font-size: 22px; }
+      .model-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .model-grid { grid-template-columns: 1fr; }
+      details { align-self: start; }
+    }
+
+    @media (max-width: 780px) {
+      header { display: block; }
+      .clock { text-align: left; margin-top: 10px; }
+      .layout { grid-template-columns: 1fr; padding: 10px; }
+      .phase-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .model-tabs { grid-template-columns: 1fr; }
+      .model-results { grid-template-columns: 1fr; }
+      .layout > .panel,
+      .right-column,
+      .right-column > .panel { height: auto; }
+      .right-column .panel { display: block; }
+      #networkCanvas { height: 380px; min-height: 380px; }
+      #chartCanvas { height: 300px; min-height: 300px; }
+      .case-card { font-size: 14px; padding: 13px; }
+      .legend,
+      .chart-legend { font-size: 12px; }
+      .chart-legend span { min-height: 34px; padding: 7px 9px; }
+      .chart-legend b { font-size: 15px; }
+      button { min-height: 38px; font-size: 14px; padding: 7px 9px; }
+      .metric { min-height: 74px; padding: 10px; }
+      .metric b { font-size: 21px; }
+      .metric span { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>食品安全舆情对抗传播教学模拟</h1>
+        <p class="subtitle">虚构案例：短视频爆料、社交转发、媒体跟进、监管回应与协同澄清的动态推演</p>
+      </div>
+      <div class="clock">
+        <div>课堂模式：可交互仪表盘</div>
+        <div id="stepLabel">当前阶段：事件爆发前</div>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>传播网络</h2>
+          <span class="tag">节点状态实时变化</span>
+        </div>
+        <div class="case-card">
+          <strong>案例背景：</strong>某校园周边连锁餐饮门店被爆料“疑似使用过期原料”。事件起初来自短视频平台，随后经过情绪化标题、二次剪辑和意见领袖转发，舆论热度快速上升。
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="networkCanvas" width="900" height="620" aria-label="舆情传播网络图"></canvas>
+        </div>
+        <div class="legend">
+          <span><i class="dot" style="background:#98a4af"></i>未知/未触达</span>
+          <span><i class="dot" style="background:#d94b3d"></i>负面传播</span>
+          <span><i class="dot" style="background:#e5a32d"></i>理性观望</span>
+          <span><i class="dot" style="background:#27936b"></i>可信澄清</span>
+          <span><i class="dot" style="background:#64748b"></i>已降温</span>
+          <span><i class="dot" style="background:#6b5dd3"></i>关键机构/媒体</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>传播曲线与处置进程</h2>
+          <span class="tag" id="scoreTag">综合评分 42</span>
+        </div>
+        <div class="phase-bar">
+          <button data-phase="0" class="active">事件爆发</button>
+          <button data-phase="1">情绪扩散</button>
+          <button data-phase="2">处置介入</button>
+          <button data-phase="3">协同澄清</button>
+          <button data-phase="4">效果检查</button>
+          <button class="reset" id="resetBtn">重置模拟</button>
+        </div>
+        <div class="timeline">
+          <h3 id="phaseTitle">事件爆发：单点爆料进入公共视野</h3>
+          <p id="phaseText">爆料视频被少量用户转发，讨论集中在“是否过期”和“监管是否缺位”。信息尚未充分核实，传播网络中出现第一批负面节点。</p>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="chartCanvas" width="900" height="380" aria-label="舆情指标趋势曲线"></canvas>
+        </div>
+        <div class="chart-legend">
+          <span><i class="dot" style="background:#d94b3d"></i>舆情热度<b id="legendHeat">0</b></span>
+          <span><i class="dot" style="background:#e5a32d"></i>负面情绪占比<b id="legendNegative">0%</b></span>
+          <span><i class="dot" style="background:#6b5dd3"></i>谣言再传播率<b id="legendRumor">0%</b></span>
+          <span><i class="dot" style="background:#27936b"></i>官方信息触达率<b id="legendReach">0%</b></span>
+        </div>
+      </section>
+
+      <aside class="right-column">
+        <section class="panel">
+          <div class="panel-head">
+            <h2>参数与效果检查</h2>
+            <span class="tag">教学模拟参数</span>
+          </div>
+          <div class="controls" id="controls"></div>
+          <div class="metrics">
+            <div class="metric"><b id="peakHeat">0</b><span>峰值热度</span></div>
+            <div class="metric"><b id="dropRate">0%</b><span>热度下降率</span></div>
+            <div class="metric"><b id="negativeRate">0%</b><span>负面情绪占比</span></div>
+            <div class="metric"><b id="rumorRate">0%</b><span>谣言再传播率</span></div>
+            <div class="metric"><b id="reachRate">0%</b><span>澄清信息触达率</span></div>
+            <div class="metric"><b id="coolRate">0%</b><span>谣言节点回落比例</span></div>
+            <div class="metric"><b id="totalScore">0</b><span>处置综合评分</span></div>
+          </div>
+
+          <p class="notice">本页面为教学模拟，案例、指标权重和传播参数用于课堂理解，不代表真实平台预测模型或真实事件研判。</p>
+        </section>
+      </aside>
+
+      <section class="theory-section">
+        <details class="theory-toggle">
+          <summary>
+            <span class="summary-title">理论依据与演示算法说明</span>
+          <span class="tag">从传播理论到课堂模拟公式</span>
+          </summary>
+        <div class="theory-grid">
+          <article class="theory-card">
+            <h3>核心指标理论依据</h3>
+            <div class="theory-list">
+              <article class="theory-item">
+                <h4>舆情热度</h4>
+                <p><strong>理论依据：</strong>议程设置理论、信息扩散理论、舆情生命周期理论。</p>
+                <p><strong>课堂解释：</strong>事件被看见、讨论和转发的强度，体现公众注意力集中程度。</p>
+                <p><strong>算法含义：</strong>由负面传播节点、关键节点放大和平台扩散速度共同推高，处置后随可信信息覆盖下降。</p>
+              </article>
+              <article class="theory-item">
+                <h4>负面情绪占比</h4>
+                <p><strong>理论依据：</strong>情绪传播理论、风险感知理论、群体极化理论。</p>
+                <p><strong>课堂解释：</strong>食品安全议题天然牵动健康风险，公众容易先产生愤怒、恐慌或质疑。</p>
+                <p><strong>算法含义：</strong>受爆料可信度、谣言强度和回应延迟影响，第三方检测与监管回应可降低该比例。</p>
+              </article>
+              <article class="theory-item">
+                <h4>谣言再传播率</h4>
+                <p><strong>理论依据：</strong>谣言传播理论、SIR/SEIR 类扩散模型。</p>
+                <p><strong>课堂解释：</strong>未经证实的信息是否继续感染新的传播节点。</p>
+                <p><strong>算法含义：</strong>对应传播概率，受到意见领袖放大影响，也受到平台治理与澄清触达抑制。</p>
+              </article>
+              <article class="theory-item">
+                <h4>官方信息触达率</h4>
+                <p><strong>理论依据：</strong>危机传播理论、信源可信度理论、两级传播理论。</p>
+                <p><strong>课堂解释：</strong>权威回应不仅要发布，还要到达用户、被理解并进入讨论链路。</p>
+                <p><strong>算法含义：</strong>由官方回应速度、监管节点、媒体节点和第三方检测可信度共同提升。</p>
+              </article>
+              <article class="theory-item">
+                <h4>澄清转化率 / 谣言节点回落比例</h4>
+                <p><strong>理论依据：</strong>说服传播理论、框架理论、纠偏传播研究。</p>
+                <p><strong>课堂解释：</strong>衡量原本扩散负面信息的用户是否停止转发、转为观望或接受澄清。</p>
+                <p><strong>算法含义：</strong>当可信信息触达率高于谣言再传播率时，负面节点逐步转为澄清或降温状态。</p>
+              </article>
+              <article class="theory-item">
+                <h4>处置综合评分</h4>
+                <p><strong>理论依据：</strong>危机管理效果评估框架。</p>
+                <p><strong>课堂解释：</strong>综合评估回应是否及时、信息是否可信、热度是否回落、情绪是否缓和。</p>
+                <p><strong>算法含义：</strong>按热度下降、触达率、负面情绪降低和谣言回落加权计算，用于课堂比较不同处置策略。</p>
+              </article>
+            </div>
+          </article>
+          <article class="theory-card">
+            <h3>教学演示算法说明</h3>
+            <p class="algorithm-summary">本页面的演示算法是“教学用加权扩散模型 + S 型增长/衰减函数”，用于解释舆情传播机制和处置反馈，不是现实平台的预测模型。所有滑块参数先归一化到 0-1：C 为初始爆料可信度，R 为谣言传播强度，L 为意见领袖放大倍数，G 为官方回应速度，P 为平台治理力度，T 为第三方检测报告可信度。</p>
+            <div class="formula-grid">
+              <div class="formula-item">
+                <code>B = 0.35C + 0.35R + 0.30L</code>
+                <span>风险扩散强度。爆料越可信、谣言越强、意见领袖越活跃，事件越容易扩散和升温。</span>
+              </div>
+              <div class="formula-item">
+                <code>I = 0.38G + 0.30P + 0.32T</code>
+                <span>处置干预强度。官方回应、平台治理和第三方检测共同构成压低舆情风险的治理合力。</span>
+              </div>
+              <div class="formula-item">
+                <code>S(x) = 1 / (1 + e^(-x))</code>
+                <span>S 型函数模拟舆情“慢启动、快速爆发、逐步稳定”的生命周期变化。</span>
+              </div>
+              <div class="formula-item">
+                <code>H(t) = 18 + 95B·Growth(t)·PhaseBoost - 62I·Decay(t)·Action(t)</code>
+                <span>舆情热度。扩散因素推高热度，处置因素在介入后促使热度回落。</span>
+              </div>
+              <div class="formula-item">
+                <code>N(t) = 18 + 76B·Growth(t) - 50I·Action(t) + 8C</code>
+                <span>负面情绪占比。食品安全风险感知会推高负面情绪，可信处置会降低情绪压力。</span>
+              </div>
+              <div class="formula-item">
+                <code>M(t) = 8 + 74R·Growth(t) + 22L - 58P·Action(t)</code>
+                <span>谣言再传播率。谣言强度和关键节点会放大再传播，平台治理会抑制重复谣言与误导内容。</span>
+              </div>
+              <div class="formula-item">
+                <code>A(t) = 6 + 82I·Action(t) + 4·Phase</code>
+                <span>官方信息触达率。回应越快、协同越强、检测越可信，权威信息越容易进入讨论链路。</span>
+              </div>
+              <div class="formula-item">
+                <code>Score = 28 + 0.24D + 0.28A(t) + 0.22Q + 0.18(100 - N(t))</code>
+                <span>处置综合评分。综合热度下降率 D、官方触达、谣言回落 Q 和负面情绪缓和程度，用于课堂比较不同策略。</span>
+              </div>
+            </div>
+          </article>
+        </div>
+        </details>
+      </section>
+
+      <section class="panel model-lab">
+        <div class="panel-head">
+          <h2 class="model-title-blue">舆情预测典型模型 释义</h2>
+          <span class="tag">真实模型思想的简化教学交互</span>
+        </div>
+        <div class="model-intro">
+          <strong>一般结构：</strong>真实舆情预测模型通常可概括为 Y(t+k)=Model(Xt)：其中 Xt 是当前时刻以前收集到的传播规模、传播速度、情绪倾向、话题语义、用户网络、媒体介入、官方回应和历史相似案例等特征；Y(t+k) 是未来 k 个时间单位后的预测结果，例如未来热度、负面情绪比例、风险等级、升级概率或传播路径。
+        </div>
+        <div class="model-tabs" id="modelTabs"></div>
+        <div class="model-grid">
+          <article class="model-card">
+            <h3 id="modelTitle">时间序列预测模型</h3>
+            <div class="model-explain" id="modelExplain"></div>
+            <div class="formula-box" id="modelFormula"></div>
+          </article>
+          <article class="model-card">
+            <h3>关键参数交互</h3>
+            <div class="model-controls" id="modelControls"></div>
+          </article>
+          <article class="model-card">
+            <h3>效果显示</h3>
+            <div class="model-results" id="modelResults"></div>
+            <canvas id="modelCanvas" width="900" height="310" aria-label="真实模型简化可视化"></canvas>
+          </article>
+        </div>
+        <div class="model-note">提示：这里展示的是真实模型的建模思路和参数影响方式，不接入真实平台数据，不输出现实预测结论。课堂中可把它作为“真实模型如何工作”的可操作示意。</div>
+      </section>
+    </main>
+
+    <footer>离线单文件课件 · 虚构食品安全案例 · 可用于舆情传播、危机传播与治理效果评估课堂演示</footer>
+  </div>
+
+  <script>
+    const phases = [
+      {
+        title: "事件爆发：单点爆料进入公共视野",
+        text: "爆料视频被少量用户转发，讨论集中在“是否过期”和“监管是否缺位”。信息尚未充分核实，传播网络中出现第一批负面节点。",
+        preset: { credibility: 64, rumor: 58, leader: 52, response: 30, platform: 22, test: 25 }
+      },
+      {
+        title: "情绪扩散：二次剪辑与意见领袖放大",
+        text: "短视频被剪成更具冲突性的片段，部分账号使用情绪化标题，媒体开始跟进。负面情绪和谣言再传播率同步上升。",
+        preset: { credibility: 72, rumor: 78, leader: 82, response: 22, platform: 26, test: 25 }
+      },
+      {
+        title: "处置介入：企业回应与监管启动核查",
+        text: "企业发布初步说明，监管部门宣布现场检查。回应速度开始影响公众判断，但如果证据不足，负面情绪不会立即消退。",
+        preset: { credibility: 68, rumor: 60, leader: 66, response: 66, platform: 48, test: 42 }
+      },
+      {
+        title: "协同澄清：平台限流、媒体解释与第三方检测",
+        text: "监管通报、检测报告和媒体解释共同进入传播链路，平台降低重复谣言推荐权重，可信信息触达率明显提升。",
+        preset: { credibility: 54, rumor: 38, leader: 46, response: 82, platform: 76, test: 84 }
+      },
+      {
+        title: "效果检查：热度回落与治理复盘",
+        text: "舆情进入衰退期，重点检查热度下降、负面情绪回落、澄清触达与谣言节点回落比例，判断处置策略是否有效。",
+        preset: { credibility: 46, rumor: 25, leader: 34, response: 88, platform: 82, test: 88 }
+      }
+    ];
+
+    const controls = [
+      ["credibility", "初始爆料可信度"],
+      ["rumor", "谣言传播强度"],
+      ["leader", "意见领袖放大倍数"],
+      ["response", "官方回应速度"],
+      ["platform", "平台治理力度"],
+      ["test", "第三方检测报告可信度"]
+    ];
+
+    const state = {
+      phase: 0,
+      params: { ...phases[0].preset },
+      nodes: [],
+      links: [],
+      series: []
+    };
+
+    const colors = {
+      unknown: "#98a4af",
+      negative: "#d94b3d",
+      watching: "#e5a32d",
+      clear: "#27936b",
+      cool: "#64748b",
+      institution: "#6b5dd3"
+    };
+
+    const networkCanvas = document.getElementById("networkCanvas");
+    const networkCtx = networkCanvas.getContext("2d");
+    const chartCanvas = document.getElementById("chartCanvas");
+    const chartCtx = chartCanvas.getContext("2d");
+    const modelCanvas = document.getElementById("modelCanvas");
+    const modelCtx = modelCanvas.getContext("2d");
+
+    const modelState = {
+      active: 0,
+      values: {}
+    };
+
+    const realModels = [
+      {
+        id: "time",
+        tab: "时间序列",
+        title: "时间序列预测模型",
+        explain: [
+          ["真实用途", "时间序列模型把舆情热度看成随时间变化的连续信号，常用于预测未来 1 小时、6 小时、24 小时的发帖量、评论量、转发量、搜索指数和话题热度。ARIMA、Prophet 偏统计建模，LSTM、GRU、Transformer 更适合学习复杂非线性变化。"],
+          ["输入数据", "通常输入历史热度、评论量、转发量、媒体报道量、搜索指数、负面情绪比例和节假日/平台推荐等时间因素。模型不是靠人工设定曲线，而是从历史序列中学习“上升、平台、衰退”的模式。"],
+          ["课堂解释", "食品安全事件中，如果过去几小时评论和媒体报道持续加速，模型会倾向判断热度继续上升；如果澄清后增速下降，模型会预测峰值临近或进入回落。"],
+          ["局限提醒", "时间序列擅长预测趋势，但不一定知道热度为什么变化。突发监管通报、权威媒体曝光或新视频证据出现，可能让原有趋势预测失准。"]
+        ],
+        formula: "Y(t+k)=Model(Xt)\nXt=[Heat(t), Heat(t-1), Comment(t), Share(t), Media(t), Emotion(t)]",
+        params: [
+          ["inertia", "历史热度惯性", 62],
+          ["growth", "近期增长率", 58],
+          ["media", "媒体报道增量", 46],
+          ["window", "预测窗口", 60]
+        ],
+        compute(values) {
+          const trend = clamp(24 + values.inertia * 0.22 + values.growth * 0.42 + values.media * 0.26, 0, 100);
+          const peakHour = Math.round(clamp(28 - values.growth * 0.18 - values.media * 0.08 + values.window * 0.1, 4, 36));
+          const delta = Math.round(clamp((values.growth + values.media * 0.65 - values.inertia * 0.18) - 45, -40, 55));
+          const direction = delta >= 8 ? "继续增长" : delta <= -8 ? "开始回落" : "高位震荡";
+          const points = Array.from({ length: 24 }, (_, i) => {
+            const rise = 1 / (1 + Math.exp(-(i - 6) / 2.4));
+            const fall = 1 / (1 + Math.exp(-(i - peakHour / 2) / 3.2));
+            return clamp(18 + trend * rise - (100 - values.inertia) * 0.36 * fall, 4, 100);
+          });
+          return {
+            type: "line",
+            points,
+            results: [
+              ["未来热度预测", Math.round(points[23])],
+              ["预计峰值时间", `${peakHour}小时`],
+              ["24小时变化", `${delta > 0 ? "+" : ""}${delta}%`],
+              ["走势判断", direction]
+            ]
+          };
+        }
+      },
+      {
+        id: "diffusion",
+        tab: "信息扩散",
+        title: "信息扩散模型",
+        explain: [
+          ["真实用途", "信息扩散模型关注一条信息如何从少数节点扩散到更大人群，常用于预测传播规模、扩散速度、爆点风险和关键传播链路。SIR/SEIR 借鉴传染病思路，独立级联和线性阈值关注节点是否被激活，Hawkes Process 用来刻画传播事件的自激发效应。"],
+          ["输入数据", "通常输入发帖时间、转发链路、用户影响力、粉丝关系、曝光量、二次传播次数、澄清信息触达和节点之间的连接关系。"],
+          ["课堂解释", "食品安全爆料被意见领袖转发后，会像一次强激发事件，引发后续评论、二创视频和媒体跟进；如果平台限流和权威澄清提高，传播链路会被截断，新增节点减少。"],
+          ["局限提醒", "扩散模型依赖传播链路数据。如果只能看到聚合热度，看不到真实转发关系，对关键节点和爆点路径的判断会变粗。"]
+        ],
+        formula: "λ(t)=μ+Σ α·e^(-β(t-ti))\n新增传播节点≈λ(t)×可触达人群×(1-免疫比例)",
+        params: [
+          ["base", "基础传播率", 54],
+          ["trigger", "关键节点激发强度", 68],
+          ["decay", "时间衰减速度", 42],
+          ["immune", "免疫/澄清比例", 38]
+        ],
+        compute(values) {
+          const lambda = clamp(8 + values.base * 0.35 + values.trigger * 0.48 - values.decay * 0.16 - values.immune * 0.22, 1, 100);
+          const newNodes = Math.round(clamp(lambda * (1.25 - values.immune / 160), 0, 120));
+          const outbreak = clamp(lambda + values.trigger * 0.18 - values.immune * 0.28, 0, 100);
+          const points = Array.from({ length: 24 }, (_, i) => {
+            const excitation = values.trigger * Math.exp(-i / (4 + values.decay / 18));
+            const base = values.base * 0.3;
+            return clamp(base + excitation - values.immune * 0.18, 2, 100);
+          });
+          return {
+            type: "bar-line",
+            points,
+            results: [
+              ["传播强度 λ(t)", Math.round(lambda)],
+              ["预计新增节点", newNodes],
+              ["爆点风险", `${Math.round(outbreak)}%`],
+              ["模型提示", outbreak > 65 ? "优先控源" : outbreak > 38 ? "持续观察" : "扩散受控"]
+            ]
+          };
+        }
+      },
+      {
+        id: "emotion",
+        tab: "情绪立场",
+        title: "情绪与立场识别模型",
+        explain: [
+          ["真实用途", "情绪与立场模型从文本中识别公众态度，常用于判断负面情绪占比、恐慌程度、质疑对象、是否支持监管、是否接受企业回应。BERT、RoBERTa、ERNIE、MacBERT 和大语言模型都可用于文本分类或辅助标注。"],
+          ["输入数据", "通常输入帖子正文、评论、标题、话题标签、表情符号、转发语和上下文。模型会把文本编码成语义向量，再输出愤怒、恐慌、质疑、中立、支持、澄清接受等类别概率。"],
+          ["课堂解释", "例如“以后再也不敢吃了”体现风险感知和恐慌，“监管必须严查”体现问责立场，“检测报告出来再说”更接近理性观望。"],
+          ["局限提醒", "讽刺、反问、方言、截图文字和短视频语境会增加识别难度。真实系统通常需要人工复核、样本标注和持续校准。"]
+        ],
+        formula: "P(label|text)=Softmax(Encoder(text))\n情绪恶化概率=f(负面词、风险感知、信源可信度、文本模糊度)",
+        params: [
+          ["negativeWords", "负面词强度", 70],
+          ["riskSense", "风险感知强度", 66],
+          ["authority", "权威信源可信度", 48],
+          ["ambiguity", "文本模糊度", 52]
+        ],
+        compute(values) {
+          const negative = clamp(18 + values.negativeWords * 0.38 + values.riskSense * 0.34 + values.ambiguity * 0.18 - values.authority * 0.26, 0, 96);
+          const positive = clamp(8 + values.authority * 0.42 - values.ambiguity * 0.12, 2, 70);
+          const neutral = clamp(100 - negative - positive, 3, 88);
+          const worsen = clamp(negative * 0.72 + values.ambiguity * 0.22 - values.authority * 0.18, 0, 100);
+          return {
+            type: "stack",
+            points: [negative, neutral, positive],
+            results: [
+              ["负面比例", `${Math.round(negative)}%`],
+              ["中立比例", `${Math.round(neutral)}%`],
+              ["正向比例", `${Math.round(positive)}%`],
+              ["情绪恶化概率", `${Math.round(worsen)}%`]
+            ]
+          };
+        }
+      },
+      {
+        id: "risk",
+        tab: "风险预警",
+        title: "风险预警模型",
+        explain: [
+          ["真实用途", "风险预警模型把多类特征合并，输出低/中/高风险、未来升级概率和处置优先级。逻辑回归可解释性强，随机森林、XGBoost、LightGBM 常用于表格特征预测，神经网络适合融合文本、图像和网络结构。"],
+          ["输入数据", "常见特征包括热度增速、负面情绪占比、媒体介入度、关键节点参与、政府部门被点名、议题敏感度、地域扩散、线下行动号召和官方回应缺口。"],
+          ["课堂解释", "食品安全、医疗、教育、安全事故等议题本身敏感度高。即使总热度不算最高，只要负面情绪强、媒体介入快、官方回应慢，也可能被判为高风险。"],
+          ["局限提醒", "风险预警不是事实判断，而是处置优先级判断。模型可能高估风险以争取处置时间，也可能因训练案例不足低估新型传播形态。"]
+        ],
+        formula: "Risk=f(热度增速, 负面情绪, 媒体介入, 官方回应缺口)\nP(升级)=1/(1+e^(-z))",
+        params: [
+          ["speed", "热度增速", 64],
+          ["negative", "负面情绪占比", 61],
+          ["media", "媒体介入度", 56],
+          ["gap", "官方回应缺口", 44]
+        ],
+        compute(values) {
+          const z = -2.8 + values.speed * 0.026 + values.negative * 0.023 + values.media * 0.018 + values.gap * 0.021;
+          const upgrade = clamp(100 / (1 + Math.exp(-z)), 0, 100);
+          const level = upgrade >= 70 ? "高风险" : upgrade >= 42 ? "中风险" : "低风险";
+          const action = upgrade >= 70 ? "联合处置" : upgrade >= 42 ? "加快回应" : "常规监测";
+          const points = [values.speed, values.negative, values.media, values.gap, upgrade];
+          return {
+            type: "radar",
+            points,
+            results: [
+              ["风险等级", level],
+              ["24小时升级概率", `${Math.round(upgrade)}%`],
+              ["建议处置等级", action],
+              ["预警阈值距离", `${Math.round(clamp(70 - upgrade, 0, 70))}`]
+            ]
+          };
+        }
+      },
+      {
+        id: "network",
+        tab: "社交网络",
+        title: "社交网络传播模型",
+        explain: [
+          ["真实用途", "社交网络模型把用户和转发关系看成图结构，用节点中心性、介数中心性、PageRank、社群发现、K-core 等方法识别关键节点、桥接账号和跨圈层扩散路径。"],
+          ["输入数据", "通常输入用户关系、转发/评论/引用链路、账号影响力、社群归属、互动频次和内容相似度。它关注的不只是“多少人在说”，还包括“谁先说、谁放大、从哪个圈层扩散到哪个圈层”。"],
+          ["课堂解释", "在食品安全事件中，一个粉丝量不大的账号如果连接学生群体、家长群体和本地媒体，也可能成为桥接节点。优先解释或触达这类节点，可能比只看粉丝数更有效。"],
+          ["局限提醒", "平台数据权限、匿名转发、跨平台搬运会让网络结构不完整。真实系统通常需要多平台数据融合和人工研判。"]
+        ],
+        formula: "Influence=f(PageRank, Betweenness, K-core, 社群桥接)\n跨圈层扩散概率=f(桥接强度, 社群密度, 关键节点数)",
+        params: [
+          ["centrality", "意见领袖中心性", 70],
+          ["bridge", "跨圈层桥接强度", 58],
+          ["density", "社群密度", 52],
+          ["keyNodes", "关键节点数量", 46]
+        ],
+        compute(values) {
+          const influence = clamp(values.centrality * 0.42 + values.bridge * 0.28 + values.keyNodes * 0.3, 0, 100);
+          const cross = clamp(values.bridge * 0.44 + values.keyNodes * 0.24 + (100 - values.density) * 0.2, 0, 100);
+          const priority = influence > 68 || cross > 62 ? "优先干预桥接节点" : "维护重点社群";
+          const points = [values.centrality, values.bridge, values.density, values.keyNodes, influence, cross];
+          return {
+            type: "nodes",
+            points,
+            results: [
+              ["关键节点影响分", Math.round(influence)],
+              ["跨圈层扩散概率", `${Math.round(cross)}%`],
+              ["优先干预提示", priority],
+              ["重点节点数量", Math.round(3 + values.keyNodes / 12)]
+            ]
+          };
+        }
+      }
+    ];
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function buildControls() {
+      const wrap = document.getElementById("controls");
+      wrap.innerHTML = "";
+      controls.forEach(([key, label]) => {
+        const row = document.createElement("div");
+        row.className = "control";
+        row.innerHTML = `
+          <label for="${key}">${label}</label>
+          <output id="${key}Out">${state.params[key]}</output>
+          <input id="${key}" type="range" min="0" max="100" value="${state.params[key]}">
+        `;
+        wrap.appendChild(row);
+        row.querySelector("input").addEventListener("input", (event) => {
+          state.params[key] = Number(event.target.value);
+          document.getElementById(`${key}Out`).textContent = state.params[key];
+          recalculate();
+        });
+      });
+    }
+
+    function setPhase(index, applyPreset = true) {
+      state.phase = index;
+      if (applyPreset) {
+        state.params = { ...phases[index].preset };
+        controls.forEach(([key]) => {
+          const input = document.getElementById(key);
+          const output = document.getElementById(`${key}Out`);
+          if (input && output) {
+            input.value = state.params[key];
+            output.textContent = state.params[key];
+          }
+        });
+      }
+      document.querySelectorAll("[data-phase]").forEach((button) => {
+        button.classList.toggle("active", Number(button.dataset.phase) === index);
+      });
+      document.getElementById("phaseTitle").textContent = phases[index].title;
+      document.getElementById("phaseText").textContent = phases[index].text;
+      document.getElementById("stepLabel").textContent = `当前阶段：${phases[index].title.split("：")[0]}`;
+      recalculate();
+    }
+
+    function createNetwork() {
+      const center = { x: 450, y: 300 };
+      const types = [
+        ["media", "媒体", 5], ["leader", "意见领袖", 7], ["public", "普通用户", 32],
+        ["regulator", "监管", 2], ["company", "企业", 2], ["lab", "检测机构", 2]
+      ];
+      const nodes = [];
+      let id = 0;
+      types.forEach(([type, label, count]) => {
+        for (let i = 0; i < count; i += 1) {
+          const ring = type === "public" ? 245 + (i % 3) * 28 : type === "leader" ? 165 : 90;
+          const angle = (Math.PI * 2 * (id * 0.618 + i / Math.max(1, count))) % (Math.PI * 2);
+          nodes.push({
+            id,
+            type,
+            label,
+            x: center.x + Math.cos(angle) * ring + Math.sin(i) * 16,
+            y: center.y + Math.sin(angle) * ring * 0.72 + Math.cos(i) * 12,
+            r: type === "public" ? 8 : type === "leader" ? 12 : 15,
+            status: "unknown",
+            influence: type === "leader" ? 1.45 : type === "media" ? 1.25 : type === "public" ? 1 : 1.6
+          });
+          id += 1;
+        }
+      });
+      const anchored = [
+        ["regulator", [{ x: 360, y: 340 }, { x: 540, y: 340 }]],
+        ["company", [{ x: 360, y: 470 }, { x: 540, y: 470 }]],
+        ["lab", [{ x: 450, y: 385 }, { x: 450, y: 260 }]]
+      ];
+      anchored.forEach(([type, points]) => {
+        nodes.filter((node) => node.type === type).forEach((node, idx) => {
+          node.x = points[idx].x;
+          node.y = points[idx].y;
+        });
+      });
+
+      const links = [];
+      nodes.forEach((node) => {
+        if (node.type === "public") {
+          const leaders = nodes.filter((n) => n.type === "leader");
+          const target = leaders[node.id % leaders.length];
+          links.push([node.id, target.id]);
+        }
+        if (node.type === "leader") {
+          nodes.filter((n) => n.type === "media").forEach((media, idx) => {
+            if ((node.id + idx) % 3 === 0) links.push([node.id, media.id]);
+          });
+        }
+      });
+      nodes.filter((n) => ["regulator", "company", "lab"].includes(n.type)).forEach((source) => {
+        nodes.filter((n) => n.type === "media" || n.type === "leader").forEach((target, idx) => {
+          if ((source.id + idx) % 2 === 0) links.push([source.id, target.id]);
+        });
+      });
+      state.nodes = nodes;
+      state.links = links;
+    }
+
+    function computeSeries() {
+      const p = state.params;
+      const series = [];
+      const baseRisk = (p.credibility * 0.35 + p.rumor * 0.35 + p.leader * 0.3) / 100;
+      const intervention = (p.response * 0.38 + p.platform * 0.3 + p.test * 0.32) / 100;
+      const phaseBoost = [0.28, 0.56, 0.76, 0.88, 0.94][state.phase];
+
+      for (let t = 0; t <= 28; t += 1) {
+        const growth = 1 / (1 + Math.exp(-(t - 7) / 2.6));
+        const decay = 1 / (1 + Math.exp(-(t - 17 + state.phase) / 2.4));
+        const actionStart = 1 / (1 + Math.exp(-(t - (16 - p.response / 12)) / 2.1));
+        const heat = clamp(18 + 95 * baseRisk * growth * phaseBoost - 62 * intervention * decay * actionStart, 6, 100);
+        const negative = clamp(18 + 76 * baseRisk * growth - 50 * intervention * actionStart + p.credibility * 0.08, 5, 96);
+        const rumor = clamp(8 + 74 * (p.rumor / 100) * growth + 22 * (p.leader / 100) - 58 * (p.platform / 100) * actionStart, 2, 98);
+        const reach = clamp(6 + 82 * intervention * actionStart + state.phase * 4, 2, 96);
+        series.push({ t, heat, negative, rumor, reach });
+      }
+      state.series = series;
+      return series;
+    }
+
+    function updateNodeStatuses(metrics) {
+      const p = state.params;
+      const rumorPressure = metrics.rumor / 100;
+      const clearPressure = metrics.reach / 100;
+      const coolPressure = clamp((metrics.reach - metrics.negative + p.platform * 0.25) / 100, 0, 1);
+      state.nodes.forEach((node, idx) => {
+        const seed = (Math.sin(idx * 12.9898 + state.phase * 4.1414) + 1) / 2;
+        if (["regulator", "company", "lab"].includes(node.type)) {
+          node.status = state.phase >= 2 ? "institution" : "unknown";
+          return;
+        }
+        if (state.phase >= 3 && seed < clearPressure * node.influence * 0.42) {
+          node.status = "clear";
+        } else if (state.phase >= 4 && seed < coolPressure * 0.64) {
+          node.status = "cool";
+        } else if (seed < rumorPressure * node.influence * 0.58) {
+          node.status = "negative";
+        } else if (seed < (metrics.negative / 100) * 0.82) {
+          node.status = "watching";
+        } else {
+          node.status = "unknown";
+        }
+      });
+    }
+
+    function recalculate() {
+      const series = computeSeries();
+      const latest = series[series.length - 1];
+      updateNodeStatuses(latest);
+      updateMetrics(series, latest);
+      drawNetwork();
+      drawChart();
+    }
+
+    function updateMetrics(series, latest) {
+      const peak = Math.max(...series.map((point) => point.heat));
+      const earlyPeak = Math.max(...series.slice(0, 16).map((point) => point.heat));
+      const drop = clamp((earlyPeak - latest.heat) / Math.max(earlyPeak, 1) * 100, 0, 100);
+      const coolRate = clamp((latest.reach - latest.rumor + state.params.platform * 0.25), 0, 100);
+      const score = clamp(28 + drop * 0.24 + latest.reach * 0.28 + coolRate * 0.22 + (100 - latest.negative) * 0.18, 0, 100);
+      const heatNow = Math.round(latest.heat);
+      const negativeNow = Math.round(latest.negative);
+      const rumorNow = Math.round(latest.rumor);
+      const reachNow = Math.round(latest.reach);
+      document.getElementById("peakHeat").textContent = Math.round(peak);
+      document.getElementById("dropRate").textContent = `${Math.round(drop)}%`;
+      document.getElementById("negativeRate").textContent = `${negativeNow}%`;
+      document.getElementById("rumorRate").textContent = `${rumorNow}%`;
+      document.getElementById("reachRate").textContent = `${reachNow}%`;
+      document.getElementById("coolRate").textContent = `${Math.round(coolRate)}%`;
+      document.getElementById("totalScore").textContent = Math.round(score);
+      document.getElementById("scoreTag").textContent = `综合评分 ${Math.round(score)}`;
+      document.getElementById("legendHeat").textContent = heatNow;
+      document.getElementById("legendNegative").textContent = `${negativeNow}%`;
+      document.getElementById("legendRumor").textContent = `${rumorNow}%`;
+      document.getElementById("legendReach").textContent = `${reachNow}%`;
+    }
+
+    function setupCanvas(canvas, ctx) {
+      const rect = canvas.getBoundingClientRect();
+      const ratio = window.devicePixelRatio || 1;
+      canvas.width = Math.round(rect.width * ratio);
+      canvas.height = Math.round(rect.height * ratio);
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      return { width: rect.width, height: rect.height };
+    }
+
+    function drawNetwork() {
+      const { width, height } = setupCanvas(networkCanvas, networkCtx);
+      const scaleX = width / 900;
+      const scaleY = height / 620;
+      networkCtx.clearRect(0, 0, width, height);
+      networkCtx.fillStyle = "#f9fbfc";
+      networkCtx.fillRect(0, 0, width, height);
+
+      state.links.forEach(([a, b]) => {
+        const from = state.nodes[a];
+        const to = state.nodes[b];
+        const active = from.status !== "unknown" || to.status !== "unknown";
+        networkCtx.beginPath();
+        networkCtx.moveTo(from.x * scaleX, from.y * scaleY);
+        networkCtx.lineTo(to.x * scaleX, to.y * scaleY);
+        networkCtx.strokeStyle = active ? "rgba(21,108,140,.28)" : "rgba(119,136,153,.18)";
+        networkCtx.lineWidth = active ? 1.5 : 1;
+        networkCtx.stroke();
+      });
+
+      state.nodes.forEach((node) => {
+        const x = node.x * scaleX;
+        const y = node.y * scaleY;
+        const r = node.r;
+        networkCtx.beginPath();
+        networkCtx.arc(x, y, r + 4, 0, Math.PI * 2);
+        networkCtx.fillStyle = node.status === "negative" ? "rgba(217,75,61,.14)" : node.status === "clear" ? "rgba(39,147,107,.13)" : "rgba(21,108,140,.08)";
+        networkCtx.fill();
+        networkCtx.beginPath();
+        networkCtx.arc(x, y, r, 0, Math.PI * 2);
+        networkCtx.fillStyle = colors[node.status] || colors.unknown;
+        networkCtx.fill();
+        networkCtx.lineWidth = 2;
+        networkCtx.strokeStyle = "#fff";
+        networkCtx.stroke();
+        if (node.type !== "public" && node.type !== "leader") {
+          const text = node.label;
+          networkCtx.fillStyle = "#20303a";
+          networkCtx.font = "12px Microsoft YaHei, Arial";
+          networkCtx.textAlign = "center";
+          const labelY = y + r + 17;
+          const labelWidth = networkCtx.measureText(text).width + 10;
+          networkCtx.fillStyle = "rgba(255,255,255,.82)";
+          networkCtx.fillRect(x - labelWidth / 2, labelY - 12, labelWidth, 16);
+          networkCtx.fillStyle = "#20303a";
+          networkCtx.fillText(text, x, labelY);
+        }
+      });
+    }
+
+    function drawChart() {
+      const { width, height } = setupCanvas(chartCanvas, chartCtx);
+      const pad = { l: 46, r: 24, t: 20, b: 46 };
+      const plotW = width - pad.l - pad.r;
+      const plotH = height - pad.t - pad.b;
+      chartCtx.clearRect(0, 0, width, height);
+      chartCtx.fillStyle = "#f9fbfc";
+      chartCtx.fillRect(0, 0, width, height);
+
+      chartCtx.strokeStyle = "#dce5eb";
+      chartCtx.lineWidth = 1;
+      for (let i = 0; i <= 4; i += 1) {
+        const y = pad.t + plotH * i / 4;
+        chartCtx.beginPath();
+        chartCtx.moveTo(pad.l, y);
+        chartCtx.lineTo(width - pad.r, y);
+        chartCtx.stroke();
+        chartCtx.fillStyle = "#71808c";
+        chartCtx.font = "11px Arial";
+        chartCtx.fillText(`${100 - i * 25}`, 10, y + 4);
+      }
+
+      chartCtx.strokeStyle = "#c8d6de";
+      chartCtx.lineWidth = 1;
+      chartCtx.beginPath();
+      chartCtx.moveTo(pad.l, pad.t + plotH);
+      chartCtx.lineTo(width - pad.r, pad.t + plotH);
+      chartCtx.stroke();
+
+      const xTicks = [0, 6, 12, 18, 24, 28];
+      chartCtx.fillStyle = "#71808c";
+      chartCtx.font = "11px Microsoft YaHei, Arial";
+      chartCtx.textAlign = "center";
+      xTicks.forEach((tick) => {
+        const x = pad.l + plotW * tick / 28;
+        chartCtx.beginPath();
+        chartCtx.moveTo(x, pad.t + plotH);
+        chartCtx.lineTo(x, pad.t + plotH + 5);
+        chartCtx.stroke();
+        chartCtx.fillText(`${tick}h`, x, pad.t + plotH + 18);
+      });
+
+      const drawLine = (key, color) => {
+        chartCtx.beginPath();
+        state.series.forEach((point, idx) => {
+          const x = pad.l + plotW * idx / (state.series.length - 1);
+          const y = pad.t + plotH * (1 - point[key] / 100);
+          if (idx === 0) chartCtx.moveTo(x, y);
+          else chartCtx.lineTo(x, y);
+        });
+        chartCtx.strokeStyle = color;
+        chartCtx.lineWidth = 3;
+        chartCtx.stroke();
+      };
+      drawLine("heat", colors.negative);
+      drawLine("negative", colors.watching);
+      drawLine("rumor", colors.institution);
+      drawLine("reach", colors.clear);
+
+      chartCtx.fillStyle = "#5d6b78";
+      chartCtx.font = "12px Microsoft YaHei, Arial";
+      chartCtx.textAlign = "left";
+      chartCtx.fillText("时间推进（小时）", pad.l, height - 10);
+      chartCtx.textAlign = "right";
+      chartCtx.fillText("指标强度", width - pad.r, 16);
+    }
+
+    function buildModelLab() {
+      const tabs = document.getElementById("modelTabs");
+      tabs.innerHTML = "";
+      realModels.forEach((model, index) => {
+        modelState.values[model.id] = {};
+        model.params.forEach(([key, , defaultValue]) => {
+          modelState.values[model.id][key] = defaultValue;
+        });
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = model.tab;
+        button.dataset.modelIndex = index;
+        button.addEventListener("click", () => setActiveModel(index));
+        tabs.appendChild(button);
+      });
+      setActiveModel(0);
+    }
+
+    function setActiveModel(index) {
+      modelState.active = index;
+      document.querySelectorAll("[data-model-index]").forEach((button) => {
+        button.classList.toggle("active", Number(button.dataset.modelIndex) === index);
+      });
+      const model = realModels[index];
+      document.getElementById("modelTitle").textContent = model.title;
+      document.getElementById("modelExplain").innerHTML = model.explain.map(([label, text]) => (
+        `<p><strong>${label}：</strong>${text}</p>`
+      )).join("");
+      document.getElementById("modelFormula").textContent = model.formula;
+      const controlsWrap = document.getElementById("modelControls");
+      controlsWrap.innerHTML = "";
+      model.params.forEach(([key, label]) => {
+        const value = modelState.values[model.id][key];
+        const row = document.createElement("div");
+        row.className = "control";
+        row.innerHTML = `
+          <label for="model-${key}">${label}</label>
+          <output id="model-${key}Out">${value}</output>
+          <input id="model-${key}" type="range" min="0" max="100" value="${value}">
+        `;
+        controlsWrap.appendChild(row);
+        row.querySelector("input").addEventListener("input", (event) => {
+          modelState.values[model.id][key] = Number(event.target.value);
+          document.getElementById(`model-${key}Out`).textContent = event.target.value;
+          updateModelLab();
+        });
+      });
+      updateModelLab();
+    }
+
+    function updateModelLab() {
+      const model = realModels[modelState.active];
+      const result = model.compute(modelState.values[model.id]);
+      const resultWrap = document.getElementById("modelResults");
+      resultWrap.innerHTML = result.results.map(([label, value]) => `
+        <div class="model-result"><b>${value}</b><span>${label}</span></div>
+      `).join("");
+      drawModelCanvas(result);
+    }
+
+    function drawModelCanvas(result) {
+      const { width, height } = setupCanvas(modelCanvas, modelCtx);
+      modelCtx.clearRect(0, 0, width, height);
+      modelCtx.fillStyle = "#f9fbfc";
+      modelCtx.fillRect(0, 0, width, height);
+      const pad = { l: 38, r: 22, t: 22, b: 30 };
+      const plotW = width - pad.l - pad.r;
+      const plotH = height - pad.t - pad.b;
+
+      modelCtx.strokeStyle = "#dce5eb";
+      modelCtx.lineWidth = 1;
+      for (let i = 0; i <= 4; i += 1) {
+        const y = pad.t + plotH * i / 4;
+        modelCtx.beginPath();
+        modelCtx.moveTo(pad.l, y);
+        modelCtx.lineTo(width - pad.r, y);
+        modelCtx.stroke();
+      }
+
+      if (result.type === "line" || result.type === "bar-line") {
+        if (result.type === "bar-line") {
+          const barW = plotW / result.points.length * 0.62;
+          result.points.forEach((value, idx) => {
+            const x = pad.l + plotW * idx / result.points.length + barW * 0.25;
+            const h = plotH * value / 100;
+            modelCtx.fillStyle = "rgba(107,93,211,.22)";
+            modelCtx.fillRect(x, pad.t + plotH - h, barW, h);
+          });
+        }
+        modelCtx.beginPath();
+        result.points.forEach((value, idx) => {
+          const x = pad.l + plotW * idx / (result.points.length - 1);
+          const y = pad.t + plotH * (1 - value / 100);
+          if (idx === 0) modelCtx.moveTo(x, y);
+          else modelCtx.lineTo(x, y);
+        });
+        modelCtx.strokeStyle = result.type === "line" ? colors.negative : colors.institution;
+        modelCtx.lineWidth = 3;
+        modelCtx.stroke();
+      }
+
+      if (result.type === "stack") {
+        const labels = ["负面", "中立", "正向"];
+        const palette = [colors.negative, colors.watching, colors.clear];
+        let x = pad.l;
+        result.points.forEach((value, idx) => {
+          const w = plotW * value / 100;
+          modelCtx.fillStyle = palette[idx];
+          modelCtx.fillRect(x, pad.t + plotH * .34, w, 48);
+          modelCtx.fillStyle = "#20303a";
+          modelCtx.font = "13px Microsoft YaHei, Arial";
+          modelCtx.textAlign = "center";
+          if (w > 46) modelCtx.fillText(`${labels[idx]} ${Math.round(value)}%`, x + w / 2, pad.t + plotH * .34 + 30);
+          x += w;
+        });
+      }
+
+      if (result.type === "radar") {
+        const cx = pad.l + plotW / 2;
+        const cy = pad.t + plotH / 2;
+        const radius = Math.min(plotW, plotH) * .36;
+        const axes = result.points.length;
+        for (let ring = 1; ring <= 4; ring += 1) {
+          modelCtx.beginPath();
+          for (let i = 0; i < axes; i += 1) {
+            const angle = -Math.PI / 2 + Math.PI * 2 * i / axes;
+            const r = radius * ring / 4;
+            const x = cx + Math.cos(angle) * r;
+            const y = cy + Math.sin(angle) * r;
+            if (i === 0) modelCtx.moveTo(x, y);
+            else modelCtx.lineTo(x, y);
+          }
+          modelCtx.closePath();
+          modelCtx.strokeStyle = "#dce5eb";
+          modelCtx.stroke();
+        }
+        modelCtx.beginPath();
+        result.points.forEach((value, i) => {
+          const angle = -Math.PI / 2 + Math.PI * 2 * i / axes;
+          const r = radius * value / 100;
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+          if (i === 0) modelCtx.moveTo(x, y);
+          else modelCtx.lineTo(x, y);
+        });
+        modelCtx.closePath();
+        modelCtx.fillStyle = "rgba(21,108,140,.20)";
+        modelCtx.fill();
+        modelCtx.strokeStyle = colors.clear;
+        modelCtx.lineWidth = 3;
+        modelCtx.stroke();
+      }
+
+      if (result.type === "nodes") {
+        const [centrality, bridge, density, keyNodes, influence, cross] = result.points;
+        const centers = [
+          { x: pad.l + plotW * .25, y: pad.t + plotH * .42, r: 46, label: "核心社群" },
+          { x: pad.l + plotW * .58, y: pad.t + plotH * .33, r: 40, label: "媒体圈层" },
+          { x: pad.l + plotW * .68, y: pad.t + plotH * .68, r: 44, label: "公众圈层" }
+        ];
+        centers.forEach((group) => {
+          modelCtx.beginPath();
+          modelCtx.arc(group.x, group.y, group.r + density * .12, 0, Math.PI * 2);
+          modelCtx.fillStyle = "rgba(21,108,140,.08)";
+          modelCtx.fill();
+          modelCtx.strokeStyle = "#c7d7df";
+          modelCtx.stroke();
+          modelCtx.fillStyle = "#20303a";
+          modelCtx.font = "12px Microsoft YaHei, Arial";
+          modelCtx.textAlign = "center";
+          modelCtx.fillText(group.label, group.x, group.y + group.r + 22);
+        });
+        modelCtx.beginPath();
+        modelCtx.moveTo(centers[0].x, centers[0].y);
+        modelCtx.lineTo(centers[1].x, centers[1].y);
+        modelCtx.lineTo(centers[2].x, centers[2].y);
+        modelCtx.strokeStyle = `rgba(217,75,61,${0.2 + bridge / 130})`;
+        modelCtx.lineWidth = 2 + cross / 18;
+        modelCtx.stroke();
+        const count = Math.round(6 + keyNodes / 8);
+        for (let i = 0; i < count; i += 1) {
+          const group = centers[i % centers.length];
+          const angle = i * 2.399;
+          const r = 12 + (i % 4) * 9;
+          const x = group.x + Math.cos(angle) * r;
+          const y = group.y + Math.sin(angle) * r;
+          modelCtx.beginPath();
+          modelCtx.arc(x, y, i < 3 ? 7 + influence / 28 : 5, 0, Math.PI * 2);
+          modelCtx.fillStyle = i < 3 ? colors.negative : colors.calm;
+          modelCtx.fill();
+        }
+      }
+
+      modelCtx.fillStyle = "#5d6b78";
+      modelCtx.font = "12px Microsoft YaHei, Arial";
+      modelCtx.textAlign = "left";
+      modelCtx.fillText("简化教学可视化", pad.l, height - 10);
+    }
+
+    document.querySelectorAll("[data-phase]").forEach((button) => {
+      button.addEventListener("click", () => setPhase(Number(button.dataset.phase)));
+    });
+
+    document.getElementById("resetBtn").addEventListener("click", () => setPhase(0));
+
+    window.addEventListener("resize", () => {
+      drawNetwork();
+      drawChart();
+      updateModelLab();
+    });
+
+    buildControls();
+    createNetwork();
+    buildModelLab();
+    setPhase(0, false);
+  </script>
+</body>
+</html>
