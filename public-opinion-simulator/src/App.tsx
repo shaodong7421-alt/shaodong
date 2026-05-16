@@ -30,7 +30,7 @@ import {
 } from "./engine";
 import type { Choice, MetricKey, SimulationRun } from "./types";
 
-const DECISION_SECONDS = 30;
+const DECISION_SECONDS = 60;
 const HOME_PATH = "/shaodong/";
 const SIMULATOR_PATH = "/shaodong/simulator/";
 
@@ -41,7 +41,7 @@ function createTimeoutChoice(stageId: string): Choice {
     id: `${stageId}-timeout`,
     label: "超时未选择处置选项",
     score: 0,
-    feedback: "30 秒内未提交处置方案，舆情窗口期被错过，信息真空会放大猜测并削弱公众信任。",
+    feedback: "60 秒内未提交处置方案，舆情窗口期被错过，信息真空会放大猜测并削弱公众信任。",
     metricDelta: {
       publicHeat: 10,
       rumorSpread: 8,
@@ -226,7 +226,7 @@ function StartScreen({
           <label className="switch-row">
             <input type="checkbox" checked={timerEnabled} onChange={(event) => onTimerChange(event.target.checked)} />
             <span><Timer size={16} /> 倒计时模式</span>
-            <b>30秒/阶段</b>
+            <b>60秒/阶段</b>
           </label>
           <label className="switch-row">
             <input type="checkbox" checked={randomEnabled} onChange={(event) => onRandomChange(event.target.checked)} />
