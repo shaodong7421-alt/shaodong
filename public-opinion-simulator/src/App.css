@@ -82,6 +82,37 @@ button {
   color: #a7d6c4;
 }
 
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.site-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 8px;
+  color: #e6f7f2;
+  background: rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.site-nav a:hover,
+.site-nav a.active {
+  color: var(--dark);
+  background: #b9ecd8;
+  border-color: #b9ecd8;
+}
+
 .topbar-actions {
   display: flex;
   gap: 10px;
@@ -817,8 +848,13 @@ button {
 
   .topbar-actions,
   .primary-action,
-  .secondary-action {
+  .secondary-action,
+  .site-nav {
     width: 100%;
+  }
+
+  .site-nav a {
+    flex: 1 1 160px;
   }
 
   .start-grid,

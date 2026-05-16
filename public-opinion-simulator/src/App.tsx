@@ -31,6 +31,8 @@ import {
 import type { Choice, MetricKey, SimulationRun } from "./types";
 
 const DECISION_SECONDS = 30;
+const HOME_PATH = "/shaodong/";
+const SIMULATOR_PATH = "/shaodong/simulator/";
 
 type Screen = "start" | "decision" | "feedback" | "result";
 
@@ -134,6 +136,10 @@ function App() {
         <div>
           <p className="eyebrow">课堂实训 · 单人决策</p>
           <h1>舆情处置模拟器</h1>
+          <nav className="site-nav" aria-label="站点导航">
+            <a href={HOME_PATH}>概念仿真学习</a>
+            <a className="active" href={SIMULATOR_PATH}>实战应对测评</a>
+          </nav>
         </div>
         <div className="topbar-actions">
           <StatusPill icon={<Gauge size={16} />} label="总分" value={`${run.totalScore}/100`} />

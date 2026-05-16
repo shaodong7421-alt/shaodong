@@ -69,6 +69,39 @@
       line-height: 1.6;
     }
 
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .site-nav a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 36px;
+      padding: 7px 12px;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 7px;
+      color: #e8f8f4;
+      background: rgba(255,255,255,.08);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+      transition: .18s ease;
+    }
+
+    .site-nav a:hover,
+    .site-nav a.active {
+      color: #0f2430;
+      background: #b9ecd8;
+      border-color: #b9ecd8;
+    }
+
     .layout {
       display: grid;
       grid-template-columns: minmax(350px, 1.1fr) minmax(390px, 1.25fr) minmax(320px, .9fr);
@@ -685,6 +718,8 @@
     @media (max-width: 780px) {
       header { display: block; }
       .clock { text-align: left; margin-top: 10px; }
+      .site-nav { justify-content: flex-start; }
+      .site-nav a { flex: 1 1 160px; }
       .layout { grid-template-columns: 1fr; padding: 10px; }
       .phase-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .model-tabs { grid-template-columns: 1fr; }
@@ -717,6 +752,10 @@
       <div class="clock">
         <div>课堂模式：可交互仪表盘</div>
         <div id="stepLabel">当前阶段：事件爆发前</div>
+        <nav class="site-nav" aria-label="站点导航">
+          <a class="active" href="./">概念仿真学习</a>
+          <a href="./simulator/">实战应对测评</a>
+        </nav>
       </div>
     </header>
 
